@@ -1,0 +1,59 @@
+#include <iostream>
+#include <stack>
+#include <cctype>
+
+bool isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/');
+}
+
+int precedence(char op) {
+    if (op == '+' || op == '-')
+        return 1;
+    if (op == '*' || op == '/')
+        return 2;
+    return 0;  // Considered for '('
+}
+
+std::string infixToPostfix(const std::string& infix) {
+    std::stack<char> operatorStack;
+    std::string postfix;
+
+    for (char ch : infix) {
+        if (std::isalnum(ch)) {
+            postfix += ch;  // Operand, add to the postfix expression
+        } else if (ch == '(') {
+            operatorStack.push(ch);
+        } else if (ch == ')') {
+            while (!operatorStack.empty() && operatorStack.top() != '(') {
+                postfix += operatorStack.top();
+                operatorStack.pop();
+            }
+            operatorStack.pop();  // Pop '('
+        } else if (isOperator(ch)) {
+            while (!operatorStack.empty() && precedence(operatorStack.top()) >= precedence(ch)) {
+                postfix += operatorStack.top();
+                operatorStack.pop();
+            }
+            operatorStack.push(ch);
+        }
+    }
+
+    // Pop any remaining operators from the stack
+    while (!operatorStack.empty()) {
+        postfix += operatorStack.top();
+        operatorStack.pop();
+    }
+
+    return postfix;
+}
+
+int main() {
+    std::string infixExpression;
+    std::cout << "Enter an infix expression: ";
+    std::cin >> infixExpression;
+
+    std::string postfixExpression = infixToPostfix(infixExpression);
+    std::cout << "Postfix expression: " << postfixExpression << std::endl;
+
+    return 0;
+}
